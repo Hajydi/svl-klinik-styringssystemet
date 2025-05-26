@@ -159,6 +159,30 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          hourly_rate: number | null
+          id: string
+          name: string | null
+          phone: string | null
+          role: string | null
+        }
+        Insert: {
+          hourly_rate?: number | null
+          id: string
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Update: {
+          hourly_rate?: number | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
