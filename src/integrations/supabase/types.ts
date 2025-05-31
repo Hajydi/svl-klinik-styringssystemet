@@ -9,30 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      bookings: {
+      availability: {
         Row: {
-          client_id: string | null
-          date: string
+          created_at: string | null
+          date: string | null
           employee_id: string | null
           id: string
           status: string | null
-          time: string
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string | null
+          employee_id?: string | null
+          id?: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string | null
+          employee_id?: string | null
+          id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          client_id: string | null
+          date: string | null
+          duration_minutes: number | null
+          employee_id: string | null
+          id: string
+          price: number | null
         }
         Insert: {
           client_id?: string | null
-          date: string
+          date?: string | null
+          duration_minutes?: number | null
           employee_id?: string | null
           id?: string
-          status?: string | null
-          time: string
+          price?: number | null
         }
         Update: {
           client_id?: string | null
-          date?: string
+          date?: string | null
+          duration_minutes?: number | null
           employee_id?: string | null
           id?: string
-          status?: string | null
-          time?: string
+          price?: number | null
         }
         Relationships: [
           {
@@ -46,7 +78,39 @@ export type Database = {
             foreignKeyName: "bookings_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_entries: {
+        Row: {
+          date: string | null
+          employee_id: string | null
+          id: string
+          note: string | null
+          status: string | null
+        }
+        Insert: {
+          date?: string | null
+          employee_id?: string | null
+          id?: string
+          note?: string | null
+          status?: string | null
+        }
+        Update: {
+          date?: string | null
+          employee_id?: string | null
+          id?: string
+          note?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_entries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -54,26 +118,74 @@ export type Database = {
       clients: {
         Row: {
           assigned_to: string | null
+          created_by: string | null
+          email: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          assigned_employee_id: string | null
+          created_at: string | null
+          created_by: string | null
+          email: string | null
           id: string
           name: string
           phone: string | null
         }
         Insert: {
-          assigned_to?: string | null
+          assigned_employee_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
           id?: string
           name: string
           phone?: string | null
         }
         Update: {
-          assigned_to?: string | null
+          assigned_employee_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
           id?: string
           name?: string
           phone?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "clients_assigned_to_fkey"
-            columns: ["assigned_to"]
+            foreignKeyName: "customers_assigned_employee_id_fkey"
+            columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customers_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
@@ -82,18 +194,24 @@ export type Database = {
       }
       employees: {
         Row: {
+          auth_id: string | null
+          created_at: string | null
           email: string
           id: string
           name: string
           role: string
         }
         Insert: {
+          auth_id?: string | null
+          created_at?: string | null
           email: string
           id?: string
           name: string
-          role: string
+          role?: string
         }
         Update: {
+          auth_id?: string | null
+          created_at?: string | null
           email?: string
           id?: string
           name?: string
@@ -101,91 +219,173 @@ export type Database = {
         }
         Relationships: []
       }
-      hours: {
+      journals: {
         Row: {
-          date: string
-          employee_id: string | null
-          hours: number
+          author_id: string | null
+          client_id: string | null
+          content: string | null
+          created_at: string | null
+          created_by: string | null
           id: string
-          pay_rate: number
         }
         Insert: {
-          date: string
-          employee_id?: string | null
-          hours: number
+          author_id?: string | null
+          client_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
           id?: string
-          pay_rate: number
         }
         Update: {
-          date?: string
-          employee_id?: string | null
-          hours?: number
+          author_id?: string | null
+          client_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
           id?: string
-          pay_rate?: number
         }
         Relationships: [
           {
-            foreignKeyName: "hours_employee_id_fkey"
-            columns: ["employee_id"]
+            foreignKeyName: "journals_client_id_fkey"
+            columns: ["client_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      notes: {
-        Row: {
-          booking_id: string | null
-          id: string
-          text: string | null
-        }
-        Insert: {
-          booking_id?: string | null
-          id?: string
-          text?: string | null
-        }
-        Update: {
-          booking_id?: string | null
-          id?: string
-          text?: string | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "notes_booking_id_fkey"
-            columns: ["booking_id"]
+            foreignKeyName: "journals_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "bookings"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
       profiles: {
         Row: {
+          email: string
+          full_name: string | null
           hourly_rate: number | null
           id: string
           name: string | null
-          phone: string | null
-          role: string | null
+          role: string
         }
         Insert: {
+          email: string
+          full_name?: string | null
           hourly_rate?: number | null
           id: string
           name?: string | null
-          phone?: string | null
-          role?: string | null
+          role: string
         }
         Update: {
+          email?: string
+          full_name?: string | null
           hourly_rate?: number | null
           id?: string
           name?: string | null
-          phone?: string | null
-          role?: string | null
+          role?: string
         }
         Relationships: []
       }
+      salaries: {
+        Row: {
+          calculated_at: string | null
+          calculated_salary: number | null
+          employee_id: string | null
+          from_date: string | null
+          hourly_rate: number | null
+          id: string
+          to_date: string | null
+        }
+        Insert: {
+          calculated_at?: string | null
+          calculated_salary?: number | null
+          employee_id?: string | null
+          from_date?: string | null
+          hourly_rate?: number | null
+          id?: string
+          to_date?: string | null
+        }
+        Update: {
+          calculated_at?: string | null
+          calculated_salary?: number | null
+          employee_id?: string | null
+          from_date?: string | null
+          hourly_rate?: number | null
+          id?: string
+          to_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salaries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wages: {
+        Row: {
+          employee_id: string | null
+          generated_at: string | null
+          hourly_rate: number | null
+          hours_worked: number | null
+          id: string
+          month: string | null
+          total_salary: number | null
+        }
+        Insert: {
+          employee_id?: string | null
+          generated_at?: string | null
+          hourly_rate?: number | null
+          hours_worked?: number | null
+          id?: string
+          month?: string | null
+          total_salary?: number | null
+        }
+        Update: {
+          employee_id?: string | null
+          generated_at?: string | null
+          hourly_rate?: number | null
+          hours_worked?: number | null
+          id?: string
+          month?: string | null
+          total_salary?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wages_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      earnings_view: {
+        Row: {
+          booking_id: string | null
+          calculated_earning: number | null
+          date: string | null
+          duration_minutes: number | null
+          employee_email: string | null
+          employee_id: string | null
+          hourly_rate: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

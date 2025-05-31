@@ -3,22 +3,18 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Calendar, FileText, DollarSign, BarChart3, LogOut } from 'lucide-react';
-import EmployeeList from './EmployeeList';
-import CreateEmployeeForm from './CreateEmployeeForm';
-import AdminCalendar from './AdminCalendar';
-import AdminClients from './AdminClients';
-import AdminJournals from './AdminJournals';
-import AdminWages from './AdminWages';
-import AdminStatistics from './AdminStatistics';
+import { User, Calendar, Users, FileText, DollarSign, LogOut } from 'lucide-react';
+import EmployeeCalendar from './EmployeeCalendar';
+import EmployeeClients from './EmployeeClients';
+import EmployeeJournals from './EmployeeJournals';
+import EmployeeWages from './EmployeeWages';
 
-interface AdminDashboardProps {
+interface EmployeeDashboardProps {
   onLogout: () => void;
 }
 
-const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
-  const [activeTab, setActiveTab] = useState('medarbejdere');
-  const [showCreateForm, setShowCreateForm] = useState(false);
+const EmployeeDashboard = ({ onLogout }: EmployeeDashboardProps) => {
+  const [activeTab, setActiveTab] = useState('kalender');
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -26,65 +22,24 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   };
 
   const tabs = [
-    { id: 'medarbejdere', label: 'Medarbejdere', icon: Users },
     { id: 'kalender', label: 'Kalender', icon: Calendar },
     { id: 'klienter', label: 'Klienter', icon: Users },
     { id: 'journaler', label: 'Journaler', icon: FileText },
-    { id: 'løn', label: 'Lønberegning', icon: DollarSign },
-    { id: 'statistik', label: 'Statistik', icon: BarChart3 },
+    { id: 'løn', label: 'Løn', icon: DollarSign },
   ];
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'medarbejdere':
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
-              <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-blue-50">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-2 text-lg">
-                    <Users className="w-5 h-5 text-blue-600" />
-                    <span>Opret Ny Medarbejder</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {showCreateForm ? (
-                    <CreateEmployeeForm 
-                      onSuccess={() => {
-                        setShowCreateForm(false);
-                        // Force refresh of employee list
-                      }}
-                      onCancel={() => setShowCreateForm(false)}
-                    />
-                  ) : (
-                    <Button 
-                      onClick={() => setShowCreateForm(true)}
-                      className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    >
-                      <Users className="w-5 h-5 mr-2" />
-                      Tilføj Medarbejder
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-            <div className="lg:col-span-2">
-              <EmployeeList employees={[]} onEmployeeUpdated={() => {}} />
-            </div>
-          </div>
-        );
       case 'kalender':
-        return <AdminCalendar />;
+        return <EmployeeCalendar />;
       case 'klienter':
-        return <AdminClients />;
+        return <EmployeeClients />;
       case 'journaler':
-        return <AdminJournals />;
+        return <EmployeeJournals />;
       case 'løn':
-        return <AdminWages />;
-      case 'statistik':
-        return <AdminStatistics />;
+        return <EmployeeWages />;
       default:
-        return <div>Vælg et modul fra menuen</div>;
+        return <EmployeeCalendar />;
     }
   };
 
@@ -95,11 +50,11 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+                <User className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">SVL Sportsterapi</h1>
-                <p className="text-sm text-gray-600">Admin Dashboard</p>
+                <p className="text-sm text-gray-600">Medarbejder Dashboard</p>
               </div>
             </div>
             <Button 
@@ -151,4 +106,4 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   );
 };
 
-export default AdminDashboard;
+export default EmployeeDashboard;
