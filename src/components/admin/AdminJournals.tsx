@@ -26,7 +26,7 @@ const AdminJournals = () => {
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select('id, content, created_at, author_id, clients(name), author:profiles(name)')
+        .select('id, content, created_at, author_id, clients(name), author:profiles!journals_author_id_fkey(name)')
         .order('created_at', { ascending: false });
 
       if (error) {
