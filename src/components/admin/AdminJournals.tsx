@@ -44,13 +44,18 @@ const AdminJournals = () => {
           description: "Kunne ikke hente journaler",
           variant: "destructive",
         });
-        // Set empty array if there's an error
         setJournals([]);
       } else {
-        // Filter out any entries with relation errors and ensure proper typing
-        const validJournals = (data || []).filter(journal => 
-          journal.profiles && typeof journal.profiles === 'object' && 'name' in journal.profiles
-        ) as Journal[];
+        // Handle the data properly, checking for valid profiles
+        const validJournals: Journal[] = (data || []).map(journal => ({
+          id: journal.id,
+          content: journal.content,
+          created_at: journal.created_at,
+          clients: journal.clients,
+          profiles: journal.profiles && typeof journal.profiles === 'object' && 'name' in journal.profiles 
+            ? journal.profiles 
+            : undefined
+        }));
         setJournals(validJournals);
       }
     } catch (error) {
