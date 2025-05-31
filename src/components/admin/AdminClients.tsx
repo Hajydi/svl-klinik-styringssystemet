@@ -9,8 +9,8 @@ interface Client {
   id: string;
   name: string;
   email: string | null;
-  phone: string | null;
   assigned_to: string | null;
+  created_by: string | null;
   profiles?: {
     name: string;
   };
@@ -31,7 +31,7 @@ const AdminClients = () => {
             name
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('name', { ascending: true });
 
       if (error) {
         toast({
@@ -103,12 +103,6 @@ const AdminClients = () => {
                       <div className="flex items-center space-x-2">
                         <Mail className="w-4 h-4" />
                         <span>{client.email}</span>
-                      </div>
-                    )}
-                    {client.phone && (
-                      <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4" />
-                        <span>{client.phone}</span>
                       </div>
                     )}
                   </div>

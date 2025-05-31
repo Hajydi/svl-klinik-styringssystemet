@@ -4,15 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Users, User, Phone, Mail, Plus } from 'lucide-react';
+import { Users, User, Mail, Plus } from 'lucide-react';
 
 interface Client {
   id: string;
   name: string;
   email: string | null;
-  phone: string | null;
-  birth_date: string | null;
-  created_at: string;
+  assigned_to: string | null;
+  created_by: string | null;
 }
 
 const EmployeeClients = () => {
@@ -22,11 +21,15 @@ const EmployeeClients = () => {
 
   const fetchClients = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('clients')
         .select('*')
-        .eq('assigned_to', (await supabase.auth.getUser()).data.user?.id)
-        .order('created_at', { ascending: false });
+        .eq('assigned_to', user.id)
+        .order('name', { ascending: true });
 
       if (error) {
         toast({
@@ -93,9 +96,6 @@ const EmployeeClients = () => {
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900">{client.name}</h3>
-                        <p className="text-xs text-gray-500">
-                          Oprettet {new Date(client.created_at).toLocaleDateString('da-DK')}
-                        </p>
                       </div>
                     </div>
                     
@@ -104,17 +104,6 @@ const EmployeeClients = () => {
                         <div className="flex items-center space-x-2">
                           <Mail className="w-4 h-4" />
                           <span>{client.email}</span>
-                        </div>
-                      )}
-                      {client.phone && (
-                        <div className="flex items-center space-x-2">
-                          <Phone className="w-4 h-4" />
-                          <span>{client.phone}</span>
-                        </div>
-                      )}
-                      {client.birth_date && (
-                        <div className="text-xs text-gray-500">
-                          Født: {new Date(client.birth_date).toLocaleDateString('da-DK')}
                         </div>
                       )}
                     </div>

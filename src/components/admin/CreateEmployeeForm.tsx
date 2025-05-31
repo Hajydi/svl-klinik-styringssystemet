@@ -15,7 +15,6 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
     hourly_rate: '',
     password: ''
   });
@@ -34,7 +33,6 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
         options: {
           data: {
             name: formData.name,
-            phone: formData.phone,
             hourly_rate: parseFloat(formData.hourly_rate),
             role: 'medarbejder'
           }
@@ -56,8 +54,8 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
           .from('profiles')
           .insert({
             id: authData.user.id,
+            email: formData.email,
             name: formData.name,
-            phone: formData.phone,
             hourly_rate: parseFloat(formData.hourly_rate),
             role: 'medarbejder'
           });
@@ -72,11 +70,15 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
         }
       }
 
+      toast({
+        title: "Succes",
+        description: "Medarbejder oprettet succesfuldt",
+      });
+
       onSuccess();
       setFormData({
         name: '',
         email: '',
-        phone: '',
         hourly_rate: '',
         password: ''
       });
@@ -108,13 +110,6 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           required
-        />
-      </div>
-      <div>
-        <Input
-          placeholder="Telefon"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
         />
       </div>
       <div>

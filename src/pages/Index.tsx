@@ -9,9 +9,9 @@ import EmployeeDashboard from '@/components/employee/EmployeeDashboard';
 interface Profile {
   id: string;
   name: string | null;
-  phone: string | null;
+  email: string;
   hourly_rate: number | null;
-  role: string | null;
+  role: string;
 }
 
 const Index = () => {

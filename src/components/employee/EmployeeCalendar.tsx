@@ -24,6 +24,10 @@ const EmployeeCalendar = () => {
 
   const fetchBookings = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('bookings')
         .select(`
@@ -32,7 +36,7 @@ const EmployeeCalendar = () => {
             name
           )
         `)
-        .eq('employee_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('employee_id', user.id)
         .order('date', { ascending: true });
 
       if (error) {

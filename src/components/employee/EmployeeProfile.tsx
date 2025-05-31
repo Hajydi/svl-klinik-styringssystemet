@@ -4,14 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, DollarSign, LogOut } from 'lucide-react';
+import { User, DollarSign, LogOut } from 'lucide-react';
 
 interface Profile {
   id: string;
   name: string | null;
-  phone: string | null;
+  email: string;
   hourly_rate: number | null;
-  role: string | null;
+  role: string;
 }
 
 interface EmployeeProfileProps {
@@ -122,16 +122,6 @@ const EmployeeProfile = ({ onLogout }: EmployeeProfileProps) => {
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <div className="flex items-center space-x-3 mb-3">
-                  <Phone className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-900">Telefon</h3>
-                </div>
-                <p className="text-gray-600 text-lg">
-                  {profile?.phone || 'Ikke angivet'}
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-sm border md:col-span-2">
                 <div className="flex items-center space-x-3 mb-3">
                   <DollarSign className="w-5 h-5 text-blue-600" />
                   <h3 className="font-semibold text-gray-900">Timepris</h3>

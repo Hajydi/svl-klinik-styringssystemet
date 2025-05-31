@@ -38,6 +38,7 @@ const AdminJournals = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
+        console.error('Error fetching journals:', error);
         toast({
           title: "Fejl",
           description: "Kunne ikke hente journaler",
@@ -47,6 +48,7 @@ const AdminJournals = () => {
         setJournals(data || []);
       }
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Uventet fejl",
         description: "Der opstod en fejl ved hentning af journaler",
