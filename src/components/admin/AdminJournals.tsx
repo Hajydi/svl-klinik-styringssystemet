@@ -44,8 +44,14 @@ const AdminJournals = () => {
           description: "Kunne ikke hente journaler",
           variant: "destructive",
         });
+        // Set empty array if there's an error
+        setJournals([]);
       } else {
-        setJournals(data || []);
+        // Filter out any entries with relation errors and ensure proper typing
+        const validJournals = (data || []).filter(journal => 
+          journal.profiles && typeof journal.profiles === 'object' && 'name' in journal.profiles
+        ) as Journal[];
+        setJournals(validJournals);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -54,6 +60,7 @@ const AdminJournals = () => {
         description: "Der opstod en fejl ved hentning af journaler",
         variant: "destructive",
       });
+      setJournals([]);
     } finally {
       setLoading(false);
     }

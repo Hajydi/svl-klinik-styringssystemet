@@ -11,7 +11,6 @@ interface Booking {
   date: string;
   duration_minutes: number;
   price: number | null;
-  notes: string | null;
   client?: {
     name: string;
   };
@@ -118,9 +117,6 @@ const EmployeeCalendar = () => {
                           <span className="font-medium">{booking.price} DKK</span>
                         )}
                       </div>
-                      {booking.notes && (
-                        <p className="text-sm text-gray-600 mt-2">{booking.notes}</p>
-                      )}
                     </div>
                   </div>
                 </div>
