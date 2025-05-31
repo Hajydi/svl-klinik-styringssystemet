@@ -12,7 +12,7 @@ interface Journal {
   clients?: {
     name: string;
   };
-  profiles?: {
+  author?: {
     name: string;
   };
 }
@@ -26,15 +26,7 @@ const AdminJournals = () => {
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select(`
-          *,
-          clients (
-            name
-          ),
-          profiles!journals_author_id_fkey (
-            name
-          )
-        `)
+        .select('id, content, created_at, author_id, clients(name), author:profiles(name)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -46,15 +38,13 @@ const AdminJournals = () => {
         });
         setJournals([]);
       } else {
-        // Handle the data properly, checking for valid profiles
+        // Handle the data properly with the new author alias
         const validJournals: Journal[] = (data || []).map(journal => ({
           id: journal.id,
           content: journal.content,
           created_at: journal.created_at,
           clients: journal.clients,
-          profiles: journal.profiles && typeof journal.profiles === 'object' && 'name' in journal.profiles 
-            ? journal.profiles 
-            : undefined
+          author: journal.author
         }));
         setJournals(validJournals);
       }
@@ -114,7 +104,7 @@ const AdminJournals = () => {
                           {journal.clients?.name || 'Ukendt klient'}
                         </h3>
                         <p className="text-xs text-gray-500">
-                          Af: {journal.profiles?.name || 'Ukendt'} • {new Date(journal.created_at).toLocaleDateString('da-DK')}
+                          Af: {journal.author?.name || 'Ukendt'} • {new Date(journal.created_at).toLocaleDateString('da-DK')}
                         </p>
                       </div>
                     </div>

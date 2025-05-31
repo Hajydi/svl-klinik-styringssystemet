@@ -246,6 +246,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "journals_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "journals_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
