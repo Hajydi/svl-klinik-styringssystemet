@@ -2,19 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { FileText, Plus, User, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { FileText, User } from 'lucide-react';
 
 interface Journal {
   id: string;
-  content: string;
+  content: string | null;
   created_at: string;
-  clients?: {
+  author: {
     name: string;
-  };
-  author?: {
+  } | null;
+  clients: {
     name: string;
-  };
+  } | null;
 }
 
 const AdminJournals = () => {
@@ -24,9 +25,16 @@ const AdminJournals = () => {
 
   const fetchJournals = async () => {
     try {
+      console.log('Fetching journals with author and client relations...');
       const { data, error } = await supabase
         .from('journals')
-        .select('id, content, created_at, author_id, clients(name), author:profiles!journals_author_id_fkey(name)')
+        .select(`
+          id,
+          content,
+          created_at,
+          author:profiles!journals_author_id_fkey(name),
+          clients(name)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -36,26 +44,17 @@ const AdminJournals = () => {
           description: "Kunne ikke hente journaler",
           variant: "destructive",
         });
-        setJournals([]);
       } else {
-        // Handle the data properly with the new author alias
-        const validJournals: Journal[] = (data || []).map(journal => ({
-          id: journal.id,
-          content: journal.content,
-          created_at: journal.created_at,
-          clients: journal.clients,
-          author: journal.author
-        }));
-        setJournals(validJournals);
+        console.log('Fetched journals:', data);
+        setJournals(data || []);
       }
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error('Unexpected error fetching journals:', error);
       toast({
         title: "Uventet fejl",
         description: "Der opstod en fejl ved hentning af journaler",
         variant: "destructive",
       });
-      setJournals([]);
     } finally {
       setLoading(false);
     }
@@ -65,11 +64,30 @@ const AdminJournals = () => {
     fetchJournals();
   }, []);
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('da-DK', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (loading) {
     return (
       <Card className="shadow-lg border-0">
-        <CardContent className="p-8 text-center">
-          <div className="text-lg">Indlæser journaler...</div>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <span>Journaler</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+            <p className="mt-2 text-gray-600">Indlæser journaler...</p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -77,44 +95,57 @@ const AdminJournals = () => {
 
   return (
     <Card className="shadow-lg border-0">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center space-x-2">
           <FileText className="w-5 h-5 text-blue-600" />
-          <span>Alle Journaler ({journals.length})</span>
+          <span>Journaler</span>
         </CardTitle>
+        <Button 
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Ny Journal
+        </Button>
       </CardHeader>
       <CardContent>
         {journals.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>Ingen journaler endnu</p>
+          <div className="text-center py-8">
+            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600 text-lg">Ingen journaler endnu</p>
+            <p className="text-gray-500">Opret din første journal for at komme i gang</p>
           </div>
         ) : (
           <div className="space-y-4">
             {journals.map((journal) => (
-              <Card key={journal.id} className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {journal.clients?.name || 'Ukendt klient'}
-                        </h3>
-                        <p className="text-xs text-gray-500">
-                          Af: {journal.author?.name || 'Ukendt'} • {new Date(journal.created_at).toLocaleDateString('da-DK')}
-                        </p>
-                      </div>
+              <div
+                key={journal.id}
+                className="bg-gradient-to-r from-white to-blue-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <User className="w-4 h-4" />
+                      <span>Forfatter: {journal.author?.name || 'Ukendt'}</span>
                     </div>
+                    {journal.clients && (
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <User className="w-4 h-4" />
+                        <span>Klient: {journal.clients.name}</span>
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{journal.content}</p>
+                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(journal.created_at)}</span>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                
+                <div className="bg-white p-4 rounded border">
+                  <p className="text-gray-800 whitespace-pre-wrap">
+                    {journal.content || 'Ingen indhold tilgængeligt'}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
         )}

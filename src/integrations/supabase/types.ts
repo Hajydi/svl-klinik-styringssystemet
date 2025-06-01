@@ -274,24 +274,24 @@ export type Database = {
           full_name: string | null
           hourly_rate: number | null
           id: string
-          name: string | null
-          role: string | null
+          name: string
+          role: string
         }
         Insert: {
           email: string
           full_name?: string | null
           hourly_rate?: number | null
           id: string
-          name?: string | null
-          role?: string | null
+          name?: string
+          role?: string
         }
         Update: {
           email?: string
           full_name?: string | null
           hourly_rate?: number | null
           id?: string
-          name?: string | null
-          role?: string | null
+          name?: string
+          role?: string
         }
         Relationships: []
       }
