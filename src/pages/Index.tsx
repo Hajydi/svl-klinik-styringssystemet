@@ -128,8 +128,8 @@ const Index = () => {
         </div>
         <p className="text-lg font-medium text-gray-700">Henter profil...</p>
       </div>
-    );
-  }
+    </div>
+  );
 };
 
 export default Index;
