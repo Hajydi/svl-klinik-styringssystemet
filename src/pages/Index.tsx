@@ -20,50 +20,55 @@ const Index = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchProfile = async (userId: string) => {
+    try {
+      console.log('Fetching profile for user:', userId);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      console.log('Profile data:', data, 'Error:', error);
+      
+      if (!error && data) {
+        setProfile(data);
+      } else if (!data) {
+        // Create profile if it doesn't exist
+        console.log('Creating profile for user:', userId);
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email: session?.user?.email || '',
+            name: session?.user?.user_metadata?.name || null,
+            role: session?.user?.email === 'admin@svl.dk' ? 'admin' : 'medarbejder'
+          })
+          .select()
+          .single();
+        
+        if (!createError && newProfile) {
+          setProfile(newProfile);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching/creating profile:', error);
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('Auth state changed:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Defer profile fetching with setTimeout to prevent deadlock
-          setTimeout(async () => {
-            try {
-              const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .maybeSingle();
-              
-              console.log('Profile data:', data, 'Error:', error);
-              
-              if (!error && data) {
-                setProfile(data);
-              } else if (!data) {
-                // Create profile if it doesn't exist
-                console.log('Creating profile for user:', session.user.id);
-                const { data: newProfile, error: createError } = await supabase
-                  .from('profiles')
-                  .insert({
-                    id: session.user.id,
-                    email: session.user.email || '',
-                    name: session.user.user_metadata?.name || null,
-                    role: session.user.email === 'admin@svl.dk' ? 'admin' : 'medarbejder'
-                  })
-                  .select()
-                  .single();
-                
-                if (!createError && newProfile) {
-                  setProfile(newProfile);
-                }
-              }
-            } catch (error) {
-              console.error('Error fetching/creating profile:', error);
-            }
-          }, 100);
+          // Use setTimeout to defer profile fetching and prevent deadlock
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+          }, 0);
         } else {
           setProfile(null);
         }
@@ -123,8 +128,8 @@ const Index = () => {
         </div>
         <p className="text-lg font-medium text-gray-700">Henter profil...</p>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default Index;

@@ -275,7 +275,7 @@ export type Database = {
           hourly_rate: number | null
           id: string
           name: string | null
-          role: string
+          role: string | null
         }
         Insert: {
           email: string
@@ -283,7 +283,7 @@ export type Database = {
           hourly_rate?: number | null
           id: string
           name?: string | null
-          role: string
+          role?: string | null
         }
         Update: {
           email?: string
@@ -291,7 +291,7 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           name?: string | null
-          role?: string
+          role?: string | null
         }
         Relationships: []
       }
