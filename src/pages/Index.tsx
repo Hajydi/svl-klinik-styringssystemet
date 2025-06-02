@@ -71,7 +71,13 @@ const Index = () => {
         };
         setProfile(localProfile);
       } else {
-        setProfile(data);
+        // Ensure haj@svl.dk always gets admin role
+        if (session?.user?.email === 'haj@svl.dk' && data.role !== 'admin') {
+          const updatedProfile = { ...data, role: 'admin' };
+          setProfile(updatedProfile);
+        } else {
+          setProfile(data);
+        }
       }
     } catch (error: any) {
       console.error('Error fetching/creating profile:', error);
@@ -134,7 +140,7 @@ const Index = () => {
           <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <div className="w-8 h-8 bg-white rounded-full"></div>
           </div>
-          <p className="text-lg font-medium text-white">Indlæser SVL Sportsterapi...</p>
+          <p className="text-lg font-medium text-white">Indlæser SVL Coaching...</p>
         </div>
       </div>
     );

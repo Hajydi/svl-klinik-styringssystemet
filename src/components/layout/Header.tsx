@@ -18,11 +18,11 @@ const Header = ({ onLogout, userRole }: HeaderProps) => {
             <div className="flex items-center space-x-3">
               <img 
                 src="/lovable-uploads/35855169-50b3-44b1-b946-9b48a81401a0.png" 
-                alt="SVL Sportsterapi" 
+                alt="SVL Coaching" 
                 className="h-10 w-auto"
               />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">SVL Sportsterapi</h1>
+                <h1 className="text-xl font-bold text-gray-900">SVL Coaching</h1>
                 <p className="text-sm text-gray-600">
                   {userRole === 'admin' ? 'Admin Dashboard' : 'Medarbejder Dashboard'}
                 </p>
@@ -37,7 +37,7 @@ const Header = ({ onLogout, userRole }: HeaderProps) => {
               <img 
                 src="/lovable-uploads/fe45f5d4-81d7-412e-b4be-7125f2ff602b.png" 
                 alt="Jama Consulting" 
-                className="h-6 w-auto opacity-60"
+                className="h-8 w-auto opacity-60"
               />
             </div>
             
