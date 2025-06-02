@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Calendar, Users, FileText, DollarSign, LogOut } from 'lucide-react';
+import { Calendar, Users, FileText, DollarSign, Home } from 'lucide-react';
+import Header from '@/components/layout/Header';
+import ModernDashboard from '@/components/dashboard/ModernDashboard';
 import EmployeeCalendar from './EmployeeCalendar';
 import EmployeeClients from './EmployeeClients';
 import EmployeeJournals from './EmployeeJournals';
@@ -14,7 +16,7 @@ interface EmployeeDashboardProps {
 }
 
 const EmployeeDashboard = ({ onLogout }: EmployeeDashboardProps) => {
-  const [activeTab, setActiveTab] = useState('kalender');
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -22,6 +24,7 @@ const EmployeeDashboard = ({ onLogout }: EmployeeDashboardProps) => {
   };
 
   const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'kalender', label: 'Kalender', icon: Calendar },
     { id: 'klienter', label: 'Klienter', icon: Users },
     { id: 'journaler', label: 'Journaler', icon: FileText },
@@ -30,6 +33,8 @@ const EmployeeDashboard = ({ onLogout }: EmployeeDashboardProps) => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <ModernDashboard />;
       case 'kalender':
         return <EmployeeCalendar />;
       case 'klienter':
@@ -39,41 +44,19 @@ const EmployeeDashboard = ({ onLogout }: EmployeeDashboardProps) => {
       case 'løn':
         return <EmployeeWages />;
       default:
-        return <EmployeeCalendar />;
+        return <ModernDashboard />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">SVL Sportsterapi</h1>
-                <p className="text-sm text-gray-600">Medarbejder Dashboard</p>
-              </div>
-            </div>
-            <Button 
-              onClick={handleLogout}
-              variant="outline"
-              className="flex items-center space-x-2"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Log ud</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header onLogout={handleLogout} userRole="employee" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Navigation */}
           <div className="lg:w-64">
-            <Card className="shadow-lg border-0">
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Navigation</CardTitle>
               </CardHeader>
@@ -84,7 +67,11 @@ const EmployeeDashboard = ({ onLogout }: EmployeeDashboardProps) => {
                     <Button
                       key={tab.id}
                       variant={activeTab === tab.id ? "default" : "ghost"}
-                      className="w-full justify-start"
+                      className={`w-full justify-start transition-all duration-200 ${
+                        activeTab === tab.id 
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md" 
+                          : "hover:bg-blue-50"
+                      }`}
                       onClick={() => setActiveTab(tab.id)}
                     >
                       <Icon className="w-4 h-4 mr-2" />

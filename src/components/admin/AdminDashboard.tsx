@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Calendar, FileText, DollarSign, BarChart3, LogOut } from 'lucide-react';
+import { Users, Calendar, FileText, DollarSign, BarChart3, Home } from 'lucide-react';
+import Header from '@/components/layout/Header';
+import ModernDashboard from '@/components/dashboard/ModernDashboard';
 import EmployeeList from './EmployeeList';
 import CreateEmployeeForm from './CreateEmployeeForm';
 import AdminCalendar from './AdminCalendar';
@@ -17,7 +19,7 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
-  const [activeTab, setActiveTab] = useState('medarbejdere');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -32,6 +34,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   };
 
   const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'medarbejdere', label: 'Medarbejdere', icon: Users },
     { id: 'klienter', label: 'Klienter', icon: Users },
     { id: 'journaler', label: 'Journaler', icon: FileText },
@@ -42,6 +45,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <ModernDashboard />;
       case 'medarbejdere':
         return (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -87,41 +92,19 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       case 'statistik':
         return <AdminStatistics />;
       default:
-        return <div>Vælg et modul fra menuen</div>;
+        return <ModernDashboard />;
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">SVL Sportsterapi</h1>
-                <p className="text-sm text-gray-600">Admin Dashboard</p>
-              </div>
-            </div>
-            <Button 
-              onClick={handleLogout}
-              variant="outline"
-              className="flex items-center space-x-2"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Log ud</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header onLogout={handleLogout} userRole="admin" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Navigation */}
           <div className="lg:w-64">
-            <Card className="shadow-lg border-0">
+            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Navigation</CardTitle>
               </CardHeader>
@@ -132,7 +115,11 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     <Button
                       key={tab.id}
                       variant={activeTab === tab.id ? "default" : "ghost"}
-                      className="w-full justify-start"
+                      className={`w-full justify-start transition-all duration-200 ${
+                        activeTab === tab.id 
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md" 
+                          : "hover:bg-blue-50"
+                      }`}
                       onClick={() => setActiveTab(tab.id)}
                     >
                       <Icon className="w-4 h-4 mr-2" />
