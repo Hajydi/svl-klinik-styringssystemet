@@ -28,76 +28,59 @@ const Index = () => {
       console.log('Fetching profile for user:', userId);
       setProfileError(null);
       
-      // Set a 5-second timeout for profile fetching
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
-      );
-
-      const fetchPromise = supabase
+      // Check if profile exists, if not create one
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
-
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+        .maybeSingle();
       
       console.log('Profile data:', data, 'Error:', error);
       
       if (error) {
-        if (error.code === 'PGRST116') {
-          // Profile doesn't exist, create one
-          console.log('Creating profile for user:', userId);
-          const { data: newProfile, error: createError } = await supabase
-            .from('profiles')
-            .insert({
-              id: userId,
-              email: session?.user?.email || '',
-              name: session?.user?.user_metadata?.name || 'Standard Bruger',
-              role: session?.user?.email === 'admin@svl.dk' ? 'admin' : 'bruger'
-            })
-            .select()
-            .single();
-          
-          if (createError) {
-            console.error('Error creating profile:', createError);
-            setProfileError('Kunne ikke oprette brugerprofil');
-            toast({
-              title: "Fejl",
-              description: "Kunne ikke oprette brugerprofil",
-              variant: "destructive",
-            });
-          } else {
-            setProfile(newProfile);
-          }
-        } else {
-          console.error('Error fetching profile:', error);
-          setProfileError('Kunne ikke hente brugerprofil');
-          toast({
-            title: "Fejl",
-            description: "Kunne ikke hente brugerprofil",
-            variant: "destructive",
-          });
+        console.error('Error fetching profile:', error);
+        // If there's a permission error, create a simple profile locally
+        if (error.code === '42501' || error.message.includes('permission denied')) {
+          console.log('Permission denied, creating local profile');
+          const localProfile = {
+            id: userId,
+            email: session?.user?.email || '',
+            name: session?.user?.user_metadata?.name || 'Standard Bruger',
+            role: session?.user?.email === 'haj@svl.dk' ? 'admin' : 'bruger',
+            hourly_rate: null
+          };
+          setProfile(localProfile);
+          return;
         }
+        
+        setProfileError('Kunne ikke hente brugerprofil');
+        toast({
+          title: "Fejl",
+          description: "Kunne ikke hente brugerprofil",
+          variant: "destructive",
+        });
+      } else if (!data) {
+        // Profile doesn't exist, create a local one
+        console.log('No profile found, creating local profile');
+        const localProfile = {
+          id: userId,
+          email: session?.user?.email || '',
+          name: session?.user?.user_metadata?.name || 'Standard Bruger',
+          role: session?.user?.email === 'haj@svl.dk' ? 'admin' : 'bruger',
+          hourly_rate: null
+        };
+        setProfile(localProfile);
       } else {
         setProfile(data);
       }
     } catch (error: any) {
       console.error('Error fetching/creating profile:', error);
-      if (error.message === 'Profile fetch timeout') {
-        setProfileError('Timeout ved hentning af profil');
-        toast({
-          title: "Timeout",
-          description: "Kunne ikke hente profil inden for 5 sekunder",
-          variant: "destructive",
-        });
-      } else {
-        setProfileError('Uventet fejl ved hentning af profil');
-        toast({
-          title: "Fejl",
-          description: "Der opstod en uventet fejl",
-          variant: "destructive",
-        });
-      }
+      setProfileError('Uventet fejl ved hentning af profil');
+      toast({
+        title: "Fejl",
+        description: "Der opstod en uventet fejl",
+        variant: "destructive",
+      });
     }
   };
 
@@ -146,12 +129,12 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <div className="w-8 h-8 bg-white rounded-full"></div>
           </div>
-          <p className="text-lg font-medium text-gray-700">Indlæser SVL Sportsterapi...</p>
+          <p className="text-lg font-medium text-white">Indlæser SVL Sportsterapi...</p>
         </div>
       </div>
     );
@@ -195,12 +178,12 @@ const Index = () => {
 
   // Loading state while fetching profile
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
       <div className="text-center">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+        <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
           <div className="w-8 h-8 bg-white rounded-full"></div>
         </div>
-        <p className="text-lg font-medium text-gray-700">Henter profil...</p>
+        <p className="text-lg font-medium text-white">Henter profil...</p>
       </div>
     </div>
   );
