@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Plus, User, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import CreateJournalForm from './CreateJournalForm';
 
 interface Journal {
   id: string;
@@ -21,6 +22,7 @@ interface Journal {
 const EmployeeJournals = () => {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const { toast } = useToast();
 
   const fetchJournals = async () => {
@@ -102,59 +104,83 @@ const EmployeeJournals = () => {
   }
 
   return (
-    <Card className="shadow-lg border-0">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center space-x-2">
-          <FileText className="w-5 h-5 text-blue-600" />
-          <span>Mine Journaler</span>
-        </CardTitle>
-        <Button 
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Ny Journal
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {journals.length === 0 ? (
-          <div className="text-center py-8">
-            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg">Ingen journaler endnu</p>
-            <p className="text-gray-500">Opret din første journal for at komme i gang</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {journals.map((journal) => (
-              <div
-                key={journal.id}
-                className="bg-gradient-to-r from-white to-blue-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center space-x-4">
-                    {journal.clients && (
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <User className="w-4 h-4" />
-                        <span>Klient: {journal.clients.name}</span>
-                      </div>
-                    )}
+    <div className="space-y-6">
+      <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-blue-50">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center space-x-2 text-lg">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <span>Opret Ny Journal</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {showCreateForm ? (
+            <CreateJournalForm 
+              onSuccess={() => {
+                setShowCreateForm(false);
+                fetchJournals();
+              }}
+              onCancel={() => setShowCreateForm(false)}
+            />
+          ) : (
+            <Button 
+              onClick={() => setShowCreateForm(true)}
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Ny Journal
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg border-0">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <span>Mine Journaler ({journals.length})</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {journals.length === 0 ? (
+            <div className="text-center py-8">
+              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 text-lg">Ingen journaler endnu</p>
+              <p className="text-gray-500">Opret din første journal for at komme i gang</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {journals.map((journal) => (
+                <div
+                  key={journal.id}
+                  className="bg-gradient-to-r from-white to-blue-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center space-x-4">
+                      {journal.clients && (
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <User className="w-4 h-4" />
+                          <span>Klient: {journal.clients.name}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                      <Calendar className="w-4 h-4" />
+                      <span>{formatDate(journal.created_at)}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <Calendar className="w-4 h-4" />
-                    <span>{formatDate(journal.created_at)}</span>
+                  
+                  <div className="bg-white p-4 rounded border">
+                    <p className="text-gray-800 whitespace-pre-wrap">
+                      {journal.content || 'Ingen indhold tilgængeligt'}
+                    </p>
                   </div>
                 </div>
-                
-                <div className="bg-white p-4 rounded border">
-                  <p className="text-gray-800 whitespace-pre-wrap">
-                    {journal.content || 'Ingen indhold tilgængeligt'}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

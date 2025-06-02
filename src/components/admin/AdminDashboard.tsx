@@ -19,17 +19,23 @@ interface AdminDashboardProps {
 const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState('medarbejdere');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     onLogout();
   };
 
+  const handleEmployeeCreated = () => {
+    setShowCreateForm(false);
+    setRefreshKey(prev => prev + 1);
+  };
+
   const tabs = [
     { id: 'medarbejdere', label: 'Medarbejdere', icon: Users },
-    { id: 'kalender', label: 'Kalender', icon: Calendar },
     { id: 'klienter', label: 'Klienter', icon: Users },
     { id: 'journaler', label: 'Journaler', icon: FileText },
+    { id: 'kalender', label: 'Kalender', icon: Calendar },
     { id: 'løn', label: 'Lønberegning', icon: DollarSign },
     { id: 'statistik', label: 'Statistik', icon: BarChart3 },
   ];
@@ -50,10 +56,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 <CardContent>
                   {showCreateForm ? (
                     <CreateEmployeeForm 
-                      onSuccess={() => {
-                        setShowCreateForm(false);
-                        // Force refresh of employee list
-                      }}
+                      onSuccess={handleEmployeeCreated}
                       onCancel={() => setShowCreateForm(false)}
                     />
                   ) : (
@@ -69,16 +72,16 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
               </Card>
             </div>
             <div className="lg:col-span-2">
-              <EmployeeList employees={[]} onEmployeeUpdated={() => {}} />
+              <EmployeeList key={refreshKey} employees={[]} onEmployeeUpdated={() => {}} />
             </div>
           </div>
         );
-      case 'kalender':
-        return <AdminCalendar />;
       case 'klienter':
         return <AdminClients />;
       case 'journaler':
         return <AdminJournals />;
+      case 'kalender':
+        return <AdminCalendar />;
       case 'løn':
         return <AdminWages />;
       case 'statistik':

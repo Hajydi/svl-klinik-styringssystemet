@@ -15,6 +15,7 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     hourly_rate: '',
     password: ''
   });
@@ -33,13 +34,15 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
         options: {
           data: {
             name: formData.name,
-            hourly_rate: parseFloat(formData.hourly_rate),
+            hourly_rate: parseFloat(formData.hourly_rate) || null,
+            phone: formData.phone,
             role: 'medarbejder'
           }
         }
       });
 
       if (authError) {
+        console.error('Auth error:', authError);
         toast({
           title: "Fejl ved oprettelse",
           description: authError.message,
@@ -49,40 +52,68 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
       }
 
       if (authData.user) {
-        // Insert profile data
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authData.user.id,
-            email: formData.email,
-            name: formData.name,
-            hourly_rate: parseFloat(formData.hourly_rate),
-            role: 'medarbejder'
-          });
+        // Wait a moment for the trigger to execute, then check if profile was created
+        setTimeout(async () => {
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', authData.user.id)
+            .single();
 
-        if (profileError) {
+          if (!existingProfile) {
+            // If trigger didn't work, create profile manually
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                id: authData.user.id,
+                email: formData.email,
+                name: formData.name,
+                phone: formData.phone,
+                hourly_rate: parseFloat(formData.hourly_rate) || null,
+                role: 'medarbejder'
+              });
+
+            if (profileError) {
+              console.error('Profile error:', profileError);
+              toast({
+                title: "Fejl ved profil oprettelse",
+                description: profileError.message,
+                variant: "destructive",
+              });
+              return;
+            }
+          } else {
+            // Update profile with additional data if needed
+            const { error: updateError } = await supabase
+              .from('profiles')
+              .update({
+                phone: formData.phone,
+                hourly_rate: parseFloat(formData.hourly_rate) || null
+              })
+              .eq('id', authData.user.id);
+
+            if (updateError) {
+              console.error('Update error:', updateError);
+            }
+          }
+
           toast({
-            title: "Fejl ved profil oprettelse",
-            description: profileError.message,
-            variant: "destructive",
+            title: "Succes",
+            description: "Medarbejder oprettet succesfuldt",
           });
-          return;
-        }
+
+          onSuccess();
+          setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            hourly_rate: '',
+            password: ''
+          });
+        }, 1000);
       }
-
-      toast({
-        title: "Succes",
-        description: "Medarbejder oprettet succesfuldt",
-      });
-
-      onSuccess();
-      setFormData({
-        name: '',
-        email: '',
-        hourly_rate: '',
-        password: ''
-      });
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Uventet fejl",
         description: "Der opstod en fejl ved oprettelse af medarbejder",
@@ -114,11 +145,17 @@ const CreateEmployeeForm = ({ onSuccess, onCancel }: CreateEmployeeFormProps) =>
       </div>
       <div>
         <Input
+          placeholder="Telefonnummer"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+        />
+      </div>
+      <div>
+        <Input
           type="number"
           placeholder="Timepris (DKK)"
           value={formData.hourly_rate}
           onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
-          required
         />
       </div>
       <div>
