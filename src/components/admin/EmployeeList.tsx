@@ -1,17 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone, DollarSign, Trash2, Edit } from 'lucide-react';
+import { User, DollarSign, Trash2, Edit } from 'lucide-react';
 
 interface Profile {
   id: string;
   name: string | null;
   email: string;
-  phone: string | null;
   hourly_rate: number | null;
   role: string | null;
 }
@@ -30,7 +28,7 @@ const EmployeeList = ({ onEmployeeUpdated }: EmployeeListProps) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, email, phone, hourly_rate, role')
+        .select('id, name, email, hourly_rate, role')
         .neq('role', 'admin')
         .order('name', { ascending: true });
 
@@ -157,13 +155,7 @@ const EmployeeList = ({ onEmployeeUpdated }: EmployeeListProps) => {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                      {employee.phone && (
-                        <div className="flex items-center space-x-2">
-                          <Phone className="w-4 h-4" />
-                          <span>{employee.phone}</span>
-                        </div>
-                      )}
+                    <div className="grid grid-cols-1 gap-2 text-sm text-gray-600">
                       {employee.hourly_rate && (
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-4 h-4" />
