@@ -30,7 +30,7 @@ const EmployeeList = ({ onEmployeeUpdated }: EmployeeListProps) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, name, email, phone, hourly_rate, role')
         .neq('role', 'admin')
         .order('name', { ascending: true });
 
