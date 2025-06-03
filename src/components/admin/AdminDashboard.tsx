@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Calendar, FileText, DollarSign, BarChart3, Home } from 'lucide-react';
+import { Users, Calendar, FileText, DollarSign, BarChart3, Home, MessageSquare, Clock, UserPlus } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import ModernDashboard from '@/components/dashboard/ModernDashboard';
 import EmployeeList from './EmployeeList';
@@ -13,6 +13,9 @@ import AdminClients from './AdminClients';
 import AdminJournals from './AdminJournals';
 import AdminWages from './AdminWages';
 import AdminStatistics from './AdminStatistics';
+import AdminMessages from './AdminMessages';
+import AdminTimeTracking from './AdminTimeTracking';
+import AdminAppointments from './AdminAppointments';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -37,7 +40,10 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'medarbejdere', label: 'Medarbejdere', icon: Users },
     { id: 'klienter', label: 'Klienter', icon: Users },
+    { id: 'aftaler', label: 'Aftaler', icon: Calendar },
     { id: 'journaler', label: 'Journaler', icon: FileText },
+    { id: 'tidsregistrering', label: 'Tidsregistrering', icon: Clock },
+    { id: 'beskeder', label: 'Beskeder', icon: MessageSquare },
     { id: 'kalender', label: 'Kalender', icon: Calendar },
     { id: 'løn', label: 'Lønberegning', icon: DollarSign },
     { id: 'statistik', label: 'Statistik', icon: BarChart3 },
@@ -54,7 +60,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-blue-50">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center space-x-2 text-lg">
-                    <Users className="w-5 h-5 text-blue-600" />
+                    <UserPlus className="w-5 h-5 text-blue-600" />
                     <span>Opret Ny Medarbejder</span>
                   </CardTitle>
                 </CardHeader>
@@ -69,7 +75,7 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                       onClick={() => setShowCreateForm(true)}
                       className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                     >
-                      <Users className="w-5 h-5 mr-2" />
+                      <UserPlus className="w-5 h-5 mr-2" />
                       Tilføj Medarbejder
                     </Button>
                   )}
@@ -83,8 +89,14 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         );
       case 'klienter':
         return <AdminClients />;
+      case 'aftaler':
+        return <AdminAppointments />;
       case 'journaler':
         return <AdminJournals />;
+      case 'tidsregistrering':
+        return <AdminTimeTracking />;
+      case 'beskeder':
+        return <AdminMessages />;
       case 'kalender':
         return <AdminCalendar />;
       case 'løn':
