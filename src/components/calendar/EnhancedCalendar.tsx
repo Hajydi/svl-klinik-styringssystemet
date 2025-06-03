@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,7 +29,7 @@ const EnhancedCalendar = () => {
 
   const fetchEvents = async () => {
     try {
-      // Fetch appointments
+      // Fetch appointments with explicit joins to avoid ambiguity
       const { data: appointments, error: appointmentsError } = await supabase
         .from('appointments')
         .select(`
@@ -39,20 +38,20 @@ const EnhancedCalendar = () => {
           start_time,
           end_time,
           status,
-          profiles:employee_id (name),
-          clients:client_id (name)
+          employee_profiles:profiles!appointments_employee_id_fkey (name),
+          client_profiles:clients!appointments_client_id_fkey (name)
         `)
         .order('start_time', { ascending: true });
 
-      // Fetch bookings
+      // Fetch bookings with explicit joins
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
         .select(`
           id,
           date,
           duration_minutes,
-          profiles:employee_id (name),
-          clients:client_id (name)
+          employee_profiles:profiles!bookings_employee_id_fkey (name),
+          client_profiles:clients!bookings_client_id_fkey (name)
         `)
         .order('date', { ascending: true });
 
@@ -72,18 +71,18 @@ const EnhancedCalendar = () => {
           title: apt.title,
           start_time: apt.start_time,
           end_time: apt.end_time,
-          client_name: apt.clients?.name,
-          employee_name: apt.profiles?.name,
+          client_name: apt.client_profiles?.name,
+          employee_name: apt.employee_profiles?.name,
           status: apt.status,
           type: 'appointment' as const
         })),
         ...(bookings || []).map(booking => ({
           id: booking.id,
-          title: `Booking - ${booking.clients?.name || 'Ukendt klient'}`,
+          title: `Booking - ${booking.client_profiles?.name || 'Ukendt klient'}`,
           start_time: booking.date,
           end_time: new Date(new Date(booking.date).getTime() + booking.duration_minutes * 60000).toISOString(),
-          client_name: booking.clients?.name,
-          employee_name: booking.profiles?.name,
+          client_name: booking.client_profiles?.name,
+          employee_name: booking.employee_profiles?.name,
           status: 'scheduled',
           type: 'booking' as const
         }))
