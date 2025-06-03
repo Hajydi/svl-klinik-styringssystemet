@@ -12,19 +12,19 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon: Icon, gradient, textColor }: StatCardProps) => (
-  <Card className={`relative overflow-hidden ${gradient} shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 backdrop-blur-sm bg-white/10`}>
-    <CardContent className="p-6">
-      <div className="flex items-center justify-between">
-        <div>
+  <Card className={`relative overflow-hidden ${gradient} shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 backdrop-blur-sm bg-white/10 aspect-[3/2]`}>
+    <CardContent className="p-6 h-full flex flex-col justify-between">
+      <div className="flex items-start justify-between h-full">
+        <div className="flex flex-col justify-between h-full">
           <p className={`text-sm font-medium ${textColor} opacity-90`}>
             {title}
           </p>
-          <p className={`text-3xl font-bold ${textColor} mt-2`}>
+          <p className={`text-3xl font-bold ${textColor} mt-auto`}>
             {value}
           </p>
         </div>
-        <div className={`w-12 h-12 ${textColor} bg-white/30 rounded-lg flex items-center justify-center backdrop-blur-sm shadow-inner`}>
-          <Icon className="w-6 h-6" />
+        <div className={`w-14 h-14 ${textColor} bg-white/30 rounded-xl flex items-center justify-center backdrop-blur-sm shadow-inner`}>
+          <Icon className="w-7 h-7" />
         </div>
       </div>
       
@@ -37,7 +37,6 @@ const StatCard = ({ title, value, icon: Icon, gradient, textColor }: StatCardPro
 );
 
 const DashboardStats = () => {
-  // Mock data - will be replaced with real data from Supabase
   const stats = [
     {
       title: "Aktiv Omsætning",

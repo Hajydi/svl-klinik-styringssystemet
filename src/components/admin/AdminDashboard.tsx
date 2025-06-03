@@ -16,6 +16,7 @@ import AdminStatistics from './AdminStatistics';
 import AdminMessages from './AdminMessages';
 import AdminTimeTracking from './AdminTimeTracking';
 import AdminAppointments from './AdminAppointments';
+import EnhancedCalendar from '@/components/calendar/EnhancedCalendar';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -38,13 +39,14 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'kalender-overblik', label: 'Kalender Overblik', icon: Calendar },
     { id: 'medarbejdere', label: 'Medarbejdere', icon: Users },
     { id: 'klienter', label: 'Klienter', icon: Users },
     { id: 'aftaler', label: 'Aftaler', icon: Calendar },
     { id: 'journaler', label: 'Journaler', icon: FileText },
     { id: 'tidsregistrering', label: 'Tidsregistrering', icon: Clock },
     { id: 'beskeder', label: 'Beskeder', icon: MessageSquare },
-    { id: 'kalender', label: 'Kalender', icon: Calendar },
+    { id: 'kalender', label: 'Simpel Kalender', icon: Calendar },
     { id: 'løn', label: 'Lønberegning', icon: DollarSign },
     { id: 'statistik', label: 'Statistik', icon: BarChart3 },
   ];
@@ -53,6 +55,8 @@ const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     switch (activeTab) {
       case 'dashboard':
         return <ModernDashboard />;
+      case 'kalender-overblik':
+        return <EnhancedCalendar />;
       case 'medarbejdere':
         return (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
