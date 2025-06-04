@@ -12,8 +12,8 @@ interface LoginFormProps {
 }
 
 const LoginForm = ({ onLogin }: LoginFormProps) => {
-  const [email, setEmail] = useState('haj@svl.dk');
-  const [password, setPassword] = useState('Ravnkildevej12');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -26,24 +26,18 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
     setLoading(true);
 
     try {
-      console.log('Attempting login with:', email);
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      console.log('Login response:', { data, error });
-
       if (error) {
-        console.error('Login error:', error);
         toast({
           title: "Login fejl",
           description: error.message,
           variant: "destructive",
         });
       } else {
-        console.log('Login successful');
         toast({
           title: "Velkommen tilbage!",
           description: "Du er nu logget ind",
@@ -51,7 +45,6 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
         onLogin();
       }
     } catch (error) {
-      console.error('Unexpected login error:', error);
       toast({
         title: "Uventet fejl",
         description: "Der opstod en fejl ved login",
@@ -115,6 +108,7 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-4">
       <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
         <CardHeader className="text-center pb-4">
+          {/* SVL Logo */}
           <div className="flex justify-center mb-6">
             <img 
               src="/lovable-uploads/35855169-50b3-44b1-b946-9b48a81401a0.png" 
@@ -224,6 +218,7 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
             </Button>
           </div>
 
+          {/* Jama Consulting Credit */}
           <div className="mt-8 pt-4 border-t border-gray-200">
             <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
               <span>Udviklet af</span>

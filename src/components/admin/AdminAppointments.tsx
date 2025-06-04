@@ -20,12 +20,12 @@ interface Appointment {
   status: string;
   client_id: string;
   employee_id: string;
-  profiles?: {
+  profiles: {
     name: string;
-  } | null;
+  };
   clients?: {
     name: string;
-  } | null;
+  };
 }
 
 interface Employee {
@@ -74,20 +74,7 @@ const AdminAppointments = () => {
       if (error) {
         console.error('Error fetching appointments:', error);
       } else {
-        // Type the data properly to match our interface
-        const typedAppointments: Appointment[] = (data || []).map(item => ({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          start_time: item.start_time,
-          end_time: item.end_time,
-          status: item.status,
-          client_id: item.client_id,
-          employee_id: item.employee_id,
-          profiles: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles,
-          clients: Array.isArray(item.clients) ? item.clients[0] : item.clients
-        }));
-        setAppointments(typedAppointments);
+        setAppointments(data || []);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -380,7 +367,7 @@ const AdminAppointments = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-2">
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4" />
-                            <span>{appointment.profiles?.name || 'Ukendt medarbejder'}</span>
+                            <span>{appointment.profiles?.name}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Clock className="w-4 h-4" />
