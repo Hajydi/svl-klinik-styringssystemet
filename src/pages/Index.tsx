@@ -28,7 +28,6 @@ const Index = () => {
       console.log('Fetching profile for user:', userId);
       setProfileError(null);
       
-      // Check if profile exists, if not create one
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -39,48 +38,60 @@ const Index = () => {
       
       if (error) {
         console.error('Error fetching profile:', error);
-        // If there's a permission error, create a simple profile locally
-        if (error.code === '42501' || error.message.includes('permission denied')) {
-          console.log('Permission denied, creating local profile');
-          const localProfile = {
-            id: userId,
-            email: session?.user?.email || '',
-            name: session?.user?.user_metadata?.name || 'Standard Bruger',
-            role: session?.user?.email === 'haj@svl.dk' ? 'admin' : 'bruger',
-            hourly_rate: null
-          };
-          setProfile(localProfile);
-          return;
-        }
-        
         setProfileError('Kunne ikke hente brugerprofil');
         toast({
           title: "Fejl",
           description: "Kunne ikke hente brugerprofil",
           variant: "destructive",
         });
-      } else if (!data) {
-        // Profile doesn't exist, create a local one
-        console.log('No profile found, creating local profile');
-        const localProfile = {
+        return;
+      }
+      
+      if (!data) {
+        // Create profile for admin user if it doesn't exist
+        const userEmail = session?.user?.email || '';
+        const isAdmin = userEmail === 'haj@svl.dk';
+        
+        const newProfile = {
           id: userId,
-          email: session?.user?.email || '',
-          name: session?.user?.user_metadata?.name || 'Standard Bruger',
-          role: session?.user?.email === 'haj@svl.dk' ? 'admin' : 'bruger',
+          email: userEmail,
+          name: isAdmin ? 'Administrator' : session?.user?.user_metadata?.name || 'Standard Bruger',
+          role: isAdmin ? 'admin' : 'bruger',
+          full_name: isAdmin ? 'Administrator' : session?.user?.user_metadata?.name || '',
           hourly_rate: null
         };
-        setProfile(localProfile);
+        
+        const { data: insertedData, error: insertError } = await supabase
+          .from('profiles')
+          .insert(newProfile)
+          .select()
+          .single();
+          
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          setProfile(newProfile);
+        } else {
+          setProfile(insertedData);
+        }
       } else {
-        // Ensure haj@svl.dk always gets admin role
+        // Ensure admin role for haj@svl.dk
         if (session?.user?.email === 'haj@svl.dk' && data.role !== 'admin') {
           const updatedProfile = { ...data, role: 'admin' };
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ role: 'admin' })
+            .eq('id', userId);
+            
+          if (updateError) {
+            console.error('Error updating admin role:', updateError);
+          }
           setProfile(updatedProfile);
         } else {
           setProfile(data);
         }
       }
     } catch (error: any) {
-      console.error('Error fetching/creating profile:', error);
+      console.error('Error in fetchProfile:', error);
       setProfileError('Uventet fejl ved hentning af profil');
       toast({
         title: "Fejl",
@@ -91,7 +102,7 @@ const Index = () => {
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session);
@@ -99,7 +110,7 @@ const Index = () => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Use setTimeout to defer profile fetching and prevent deadlock
+          // Defer profile fetching to avoid potential deadlocks
           setTimeout(() => {
             fetchProfile(session.user.id);
           }, 0);
@@ -111,7 +122,7 @@ const Index = () => {
       }
     );
 
-    // THEN check for existing session
+    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         setLoading(false);
@@ -119,7 +130,7 @@ const Index = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [session]);
 
   const handleLogin = () => {
     // The auth state change will handle the rest
