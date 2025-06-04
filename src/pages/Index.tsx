@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
@@ -130,7 +129,7 @@ const Index = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [session]);
+  }, []); // Fjernet session fra dependency array for at stoppe infinite loop
 
   const handleLogin = () => {
     // The auth state change will handle the rest
