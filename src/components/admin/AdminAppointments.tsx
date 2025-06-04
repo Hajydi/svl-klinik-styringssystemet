@@ -20,10 +20,10 @@ interface Appointment {
   status: string;
   client_id: string;
   employee_id: string;
-  profiles: {
+  employee_profile: {
     name: string;
   };
-  clients?: {
+  client?: {
     name: string;
   };
 }
@@ -62,10 +62,10 @@ const AdminAppointments = () => {
         .from('appointments')
         .select(`
           *,
-          profiles:employee_id (
+          employee_profile:profiles!employee_id (
             name
           ),
-          clients:client_id (
+          client:clients!client_id (
             name
           )
         `)
@@ -367,7 +367,7 @@ const AdminAppointments = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-2">
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4" />
-                            <span>{appointment.profiles?.name}</span>
+                            <span>{appointment.employee_profile?.name}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <Clock className="w-4 h-4" />
@@ -375,10 +375,10 @@ const AdminAppointments = () => {
                               {format(new Date(appointment.start_time), 'dd. MMM yyyy HH:mm', { locale: da })}
                             </span>
                           </div>
-                          {appointment.clients && (
+                          {appointment.client && (
                             <div className="flex items-center space-x-2">
                               <MapPin className="w-4 h-4" />
-                              <span>{appointment.clients.name}</span>
+                              <span>{appointment.client.name}</span>
                             </div>
                           )}
                         </div>
