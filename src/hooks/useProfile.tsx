@@ -30,6 +30,7 @@ export const useProfile = (session: Session | null) => {
       
       if (error) {
         console.error('Error fetching profile:', error);
+        setProfile(null);
         return;
       }
       
@@ -47,6 +48,8 @@ export const useProfile = (session: Session | null) => {
           hourly_rate: null
         };
         
+        console.log('Creating new profile:', newProfile);
+        
         const { data: insertedData, error: insertError } = await supabase
           .from('profiles')
           .insert(newProfile)
@@ -54,16 +57,20 @@ export const useProfile = (session: Session | null) => {
           .single();
           
         if (!insertError && insertedData) {
+          console.log('Profile created successfully:', insertedData);
           setProfile(insertedData);
         } else {
-          // If insert fails, set the profile anyway for the session
+          console.error('Failed to create profile:', insertError);
+          // Set the profile anyway for the session
           setProfile(newProfile);
         }
       } else {
+        console.log('Profile found:', data);
         setProfile(data);
       }
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);
+      setProfile(null);
     } finally {
       setProfileLoading(false);
     }
