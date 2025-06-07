@@ -14,10 +14,12 @@ interface Profile {
 export const useProfile = (session: Session | null) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, userEmail: string) => {
     try {
       setProfileLoading(true);
+      setError(null);
       console.log('Fetching profile for user:', userId);
       
       const { data, error } = await supabase
@@ -30,13 +32,12 @@ export const useProfile = (session: Session | null) => {
       
       if (error) {
         console.error('Error fetching profile:', error);
-        setProfile(null);
+        setError(error.message);
         return;
       }
       
       if (!data) {
         // Create profile if it doesn't exist
-        const userEmail = session?.user?.email || '';
         const isAdmin = userEmail === 'haj@svl.dk';
         
         const newProfile = {
@@ -54,7 +55,7 @@ export const useProfile = (session: Session | null) => {
           .from('profiles')
           .insert(newProfile)
           .select()
-          .single();
+          .maybeSingle();
           
         if (!insertError && insertedData) {
           console.log('Profile created successfully:', insertedData);
@@ -70,7 +71,7 @@ export const useProfile = (session: Session | null) => {
       }
     } catch (error: any) {
       console.error('Error in fetchProfile:', error);
-      setProfile(null);
+      setError(error.message);
     } finally {
       setProfileLoading(false);
     }
@@ -78,15 +79,24 @@ export const useProfile = (session: Session | null) => {
 
   useEffect(() => {
     if (session?.user) {
-      fetchProfile(session.user.id);
+      const userEmail = session.user.email || '';
+      fetchProfile(session.user.id, userEmail);
     } else {
       setProfile(null);
       setProfileLoading(false);
+      setError(null);
     }
   }, [session?.user?.id]);
 
   return {
     profile,
-    profileLoading
+    profileLoading,
+    error,
+    refetch: () => {
+      if (session?.user) {
+        const userEmail = session.user.email || '';
+        fetchProfile(session.user.id, userEmail);
+      }
+    }
   };
 };
